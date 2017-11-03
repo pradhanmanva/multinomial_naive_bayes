@@ -33,6 +33,12 @@ def pre_process_data(path, name, list_dir):
 
 
 def training_mnb(class_list, training_set):
+    '''
+    This method trains the model using the Multinomial Naive Bayes and Text Classification.
+    :param class_list: class list for classification
+    :param training_set: path to the training data set
+    :return: vocabulary, prior list and the conditional probability of the classes
+    '''
     vocabulary = list()
     count_docs_in_class = list()
 
@@ -76,6 +82,15 @@ def training_mnb(class_list, training_set):
 
 
 def apply_mnb(class_list, prior, conditional_prob_class, document, test_set):
+    '''
+    this  method applies the MNB so that we can predicated folder.
+    :param class_list: list of the classes
+    :param prior: prior list
+    :param conditional_prob_class: conditional probability list
+    :param document: document which is to be predicted
+    :param test_set: path to the testing dataset
+    :return: returns the position/index of the prdicted folder.
+    '''
     score = list()
     word_list = pre_process_data(test_set, name, document)
     w_vocabulary = set(word_list)
