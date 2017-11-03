@@ -10,25 +10,35 @@ import numpy as np
 from nltk.corpus import stopwords
 
 
-def pre_process_data(path, name, list):
-    f = open(os.path.join(path, name, list))
+def pre_process_data(path, name, list_dir):
+    '''
+    This method includes the preprocessing of the data.
+    Preprocessing includes removeing the stop word
+    as they do not contribute to the modeling.
+    :param path: path of the training/testing data
+    :param name: name of the folder
+    :param list_dir: list of folders/docs in the dir
+    :return: return the list of words mined from the document
+    '''
+    f = open(os.path.join(path, name, list_dir))
     read_file = str(f.readlines())
     read_file = re.sub(r'[<|>|?|_|,|!|:|;|(|)|\"|=|-|$|\\|/|*|\'|+|\[|\]|#|$|%|^|?|~|`]', r'',
                        read_file)
+
     tokens = nltk.word_tokenize(read_file)
     stop_list = stopwords.words('english')
-    read_file = [word.lower() for word in tokens if
-                 word.isalpha() and not word in stop_list and len(word) > 2]
-    return read_file
+    words_list = [word.lower() for word in tokens if
+                  word.isalpha() and word not in stop_list and len(word) > 2]
+    return words_list
 
 
 def training_mnb(class_list, training_set):
-    # count = 1
     vocabulary = list()
-    total_docs = 0
     count_docs_in_class = list()
-    prior_list = list()
+
     text_of_each_class = list()
+
+    total_docs = 0
     for name in sorted(os.listdir(training_set)):
         if os.path.isdir(os.path.join(training_set, name)) and '''count <= len(class_list)''':
             local_docs = 0
@@ -42,18 +52,19 @@ def training_mnb(class_list, training_set):
             vocabulary.extend(test_class.split())
             text_of_each_class.append(test_class)
             count_docs_in_class.append(local_docs)
-            # count += 1
-    vocabulary = set(vocabulary)
-    i = 0
-    conditional_prob_class = list()
 
-    for class_name in class_list:
+    vocabulary = set(vocabulary)
+
+    conditional_prob_class = list()
+    prior_list = list()
+
+    for i in range(len(class_list)):
         tct = list()
         conditional_prob_term = defaultdict(list)
         prior_list.append(count_docs_in_class[i] / total_docs)
-        counterText = Counter(text_of_each_class[i].split())
+        counter_text = Counter(text_of_each_class[i].split())
         for term in vocabulary:
-            tct.append(counterText[term])
+            tct.append(counter_text[term])
         j = 0
         tct_sum = sum(tct)
         length_tct = len(tct)
@@ -61,7 +72,6 @@ def training_mnb(class_list, training_set):
             conditional_prob_term[term].append((tct[j] + 1) / (tct_sum + length_tct))
             j += 1
         conditional_prob_class.append(conditional_prob_term)
-        i += 1
     return vocabulary, prior_list, conditional_prob_class
 
 
